@@ -1,1 +1,7 @@
-
+gradio as gr
+os 
+json 
+requests
+openai
+streamlit
+streamlit-chat
