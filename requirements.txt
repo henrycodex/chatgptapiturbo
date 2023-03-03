@@ -1,5 +1,6 @@
 gradio
 requests
 openai
-streamlit
-streamlit-chat
+boto3
+import gradio as gr
+config

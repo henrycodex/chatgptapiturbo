@@ -1,52 +1,18 @@
-# Use this code snippet in your app.
-# If you need more information about configurations
-# or implementing the sample code, visit the AWS docs:
-# https://aws.amazon.com/developer/language/python/
-
-import boto3
-from botocore.exceptions import ClientError
-
-
-def get_secret():
-
-    secret_name = "chatgptturbo"
-    region_name = "us-east-2"
-
-    # Create a Secrets Manager client
-    session = boto3.session.Session()
-    client = session.client(
-        service_name='secretsmanager',
-        region_name=region_name
-    )
-
-    try:
-        get_secret_value_response = client.get_secret_value(
-            SecretId=secret_name
-        )
-    except ClientError as e:
-        # For a list of exceptions thrown, see
-        # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
-        raise e
-
-    # Decrypts secret using the associated KMS key.
-    secret = get_secret_value_response['SecretString']
-
-    # Your code goes here.
-
-
 import gradio as gr
 import os 
 import json 
 import requests
-import openai
+import config as config
+
+api_key = config.OPENAI_API_KEY
 
 #Streaming endpoint
 API_URL = "https://api.openai.com/v1/chat/completions" #os.getenv("API_URL") + "/generate_stream"
 
 #Testing with my Open AI Key 
-#OPENAI_API_KEY = os.getenv("OPENAI_API_KEY") 
+#openai_api_key = os.getenv("open_api_key") 
 
-def predict(inputs, top_p, temperature, openai_api_key, chat_counter, chatbot=[], history=[]):  #repetition_penalty, top_k
+def predict(inputs, top_p, temperature, chat_counter, chatbot=[], history=[]):  #repetition_penalty, top_k
 
     payload = {
     "model": "gpt-3.5-turbo",
@@ -61,7 +27,7 @@ def predict(inputs, top_p, temperature, openai_api_key, chat_counter, chatbot=[]
 
     headers = {
     "Content-Type": "application/json",
-    "Authorization": f"Bearer {chatgptturbo}"
+    "Authorization": f"Bearer {api_key}"
     }
 
     print(f"chat_counter - {chat_counter}")
@@ -128,39 +94,30 @@ def predict(inputs, top_p, temperature, openai_api_key, chat_counter, chatbot=[]
 def reset_textbox():
     return gr.update(value='')
 
-title = """<h1 align="center">🔥ChatGPT API 🚀Streaming🚀</h1>"""
-description = """Language models can be conditioned to act like dialogue agents through a conversational prompt that typically takes the form:
-```
-User: <utterance>
-Assistant: <utterance>
-User: <utterance>
-Assistant: <utterance>
-...
-```
-In this app, you can explore the outputs of a gpt-3.5-turbo LLM.
-"""
+title = """<h2 align="center">🔥ChatGPT Turbo API 3.5🔥</h2>"""
+description = """The following is a conversation between a human and AI system named ChatGPT.
+This is the most recently updated ChatGPT API 3.5 GPT Turbo"""
                 
 with gr.Blocks(css = """#col_container {width: 700px; margin-left: auto; margin-right: auto;}
                 #chatbot {height: 400px; overflow: auto;}""") as demo:
     gr.HTML(title)
-    gr.HTML('''<center><a href="https://huggingface.co/spaces/ysharma/ChatGPTwithAPI?duplicate=true"><img src="https://bit.ly/3gLdBN6" alt="Duplicate Space"></a>Duplicate the Space and run securely with your OpenAI API Key</center>''')
+    gr.HTML('''<center><a href=""><img src="" alt=""></a></center>''')
     with gr.Column(elem_id = "col_container"):
-        openai_api_key = gr.Textbox(type='password', label="Enter your OpenAI API key here")
         chatbot = gr.Chatbot(elem_id='chatbot') #c
-        inputs = gr.Textbox(placeholder= "Hi there!", label= "Type an input and press Enter") #t
+        inputs = gr.Textbox(placeholder= "Hello! You can speak to ChatGPT about anything thats on your mind.", label= "ChatGPT 3.5 Turbo API") #t
         state = gr.State([]) #s
         b1 = gr.Button()
     
         #inputs, top_p, temperature, top_k, repetition_penalty
-        with gr.Accordion("Parameters", open=False):
-            top_p = gr.Slider( minimum=-0, maximum=1.0, value=1.0, step=0.05, interactive=True, label="Top-p (nucleus sampling)",)
-            temperature = gr.Slider( minimum=-0, maximum=5.0, value=1.0, step=0.1, interactive=True, label="Temperature",)
-            #top_k = gr.Slider( minimum=1, maximum=50, value=4, step=1, interactive=True, label="Top-k",)
-            #repetition_penalty = gr.Slider( minimum=0.1, maximum=3.0, value=1.03, step=0.01, interactive=True, label="Repetition Penalty", )
+        with gr.Accordion("Advanced Settings", open=False):
+            top_p = gr.Slider( minimum=0.1, maximum=1.0, value=1.0, step=0.01, interactive=True, label="Top-p (nucleus sampling)",)
+            temperature = gr.Slider( minimum=0.1, maximum=1.0, value=1.0, step=0.1, interactive=True, label="Temperature",)
+            top_k = gr.Slider( minimum=1, maximum=50, value=4, step=1, interactive=True, label="Top-k",)
+            repetition_penalty = gr.Slider( minimum=0.1, maximum=3.0, value=1.03, step=0.01, interactive=True, label="Repetition Penalty", )
             chat_counter = gr.Number(value=0, visible=False, precision=0)
 
-    inputs.submit( predict, [inputs, top_p, temperature, openai_api_key, chat_counter, chatbot, state], [chatbot, state, chat_counter],)
-    b1.click( predict, [inputs, top_p, temperature, openai_api_key, chat_counter, chatbot, state], [chatbot, state, chat_counter],)
+    inputs.submit( predict, [inputs, top_p, temperature, chat_counter, chatbot, state], [chatbot, state, chat_counter],)
+    b1.click( predict, [inputs, top_p, temperature, chat_counter, chatbot, state], [chatbot, state, chat_counter],)
     b1.click(reset_textbox, [], [inputs])
     inputs.submit(reset_textbox, [], [inputs])
                     
