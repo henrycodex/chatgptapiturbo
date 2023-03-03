@@ -1,7 +1,44 @@
+# Use this code snippet in your app.
+# If you need more information about configurations
+# or implementing the sample code, visit the AWS docs:
+# https://aws.amazon.com/developer/language/python/
+
+import boto3
+from botocore.exceptions import ClientError
+
+
+def get_secret():
+
+    secret_name = "chatgptturbo"
+    region_name = "us-east-2"
+
+    # Create a Secrets Manager client
+    session = boto3.session.Session()
+    client = session.client(
+        service_name='secretsmanager',
+        region_name=region_name
+    )
+
+    try:
+        get_secret_value_response = client.get_secret_value(
+            SecretId=secret_name
+        )
+    except ClientError as e:
+        # For a list of exceptions thrown, see
+        # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
+        raise e
+
+    # Decrypts secret using the associated KMS key.
+    secret = get_secret_value_response['SecretString']
+
+    # Your code goes here.
+
+
 import gradio as gr
 import os 
 import json 
 import requests
+import openai
 
 #Streaming endpoint
 API_URL = "https://api.openai.com/v1/chat/completions" #os.getenv("API_URL") + "/generate_stream"
@@ -24,7 +61,7 @@ def predict(inputs, top_p, temperature, openai_api_key, chat_counter, chatbot=[]
 
     headers = {
     "Content-Type": "application/json",
-    "Authorization": f"Bearer {openai_api_key}"
+    "Authorization": f"Bearer {chatgptturbo}"
     }
 
     print(f"chat_counter - {chat_counter}")
