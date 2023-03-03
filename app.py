@@ -9,7 +9,7 @@ API_URL = "https://api.openai.com/v1/chat/completions" #os.getenv("API_URL") + "
 #Testing with my Open AI Key 
 #OPENAI_API_KEY = os.getenv("OPENAI_API_KEY") 
 
-def predict(inputs, top_p, temperature, chat_counter, chatbot=[], history=[]):  #repetition_penalty, top_k
+def predict(inputs, top_p, temperature, openai_api_key, chat_counter, chatbot=[], history=[]):  #repetition_penalty, top_k
 
     payload = {
     "model": "gpt-3.5-turbo",
@@ -24,7 +24,7 @@ def predict(inputs, top_p, temperature, chat_counter, chatbot=[], history=[]):  
 
     headers = {
     "Content-Type": "application/json",
-    "Authorization": f"Bearer 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"
+    "Authorization": f"Bearer {openai_api_key}"
     }
 
     print(f"chat_counter - {chat_counter}")
@@ -91,7 +91,7 @@ def predict(inputs, top_p, temperature, chat_counter, chatbot=[], history=[]):  
 def reset_textbox():
     return gr.update(value='')
 
-title = """<h1 align="center">🔥ChatGPT API 3.5 Turbo</h1>"""
+title = """<h1 align="center">🔥ChatGPT API 🚀Streaming🚀</h1>"""
 description = """Language models can be conditioned to act like dialogue agents through a conversational prompt that typically takes the form:
 ```
 User: <utterance>
@@ -106,9 +106,9 @@ In this app, you can explore the outputs of a gpt-3.5-turbo LLM.
 with gr.Blocks(css = """#col_container {width: 700px; margin-left: auto; margin-right: auto;}
                 #chatbot {height: 400px; overflow: auto;}""") as demo:
     gr.HTML(title)
-    gr.HTML('''<center><a href=""><img src="" alt=""></a></center>''')
+    gr.HTML('''<center><a href="https://huggingface.co/spaces/ysharma/ChatGPTwithAPI?duplicate=true"><img src="https://bit.ly/3gLdBN6" alt="Duplicate Space"></a>Duplicate the Space and run securely with your OpenAI API Key</center>''')
     with gr.Column(elem_id = "col_container"):
-        #openai_api_key = "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"
+        openai_api_key = gr.Textbox(type='password', label="Enter your OpenAI API key here")
         chatbot = gr.Chatbot(elem_id='chatbot') #c
         inputs = gr.Textbox(placeholder= "Hi there!", label= "Type an input and press Enter") #t
         state = gr.State([]) #s
@@ -122,8 +122,8 @@ with gr.Blocks(css = """#col_container {width: 700px; margin-left: auto; margin-
             #repetition_penalty = gr.Slider( minimum=0.1, maximum=3.0, value=1.03, step=0.01, interactive=True, label="Repetition Penalty", )
             chat_counter = gr.Number(value=0, visible=False, precision=0)
 
-    inputs.submit( predict, [inputs, top_p, temperature, chat_counter, chatbot, state], [chatbot, state, chat_counter],)
-    b1.click( predict, [inputs, top_p, temperature, chat_counter, chatbot, state], [chatbot, state, chat_counter],)
+    inputs.submit( predict, [inputs, top_p, temperature, openai_api_key, chat_counter, chatbot, state], [chatbot, state, chat_counter],)
+    b1.click( predict, [inputs, top_p, temperature, openai_api_key, chat_counter, chatbot, state], [chatbot, state, chat_counter],)
     b1.click(reset_textbox, [], [inputs])
     inputs.submit(reset_textbox, [], [inputs])
                     
