@@ -1,11 +1,4 @@
 gradio
-<<<<<<< HEAD
-=======
-os 
-json 
->>>>>>> parent of 4a7b150 (Update requirements.txt)
 requests
 openai
-boto3
-import gradio as gr
 config
